@@ -8,10 +8,13 @@ class IsHtmxRequestMixin:
     """
     Mixin that ensures the request is an HTMX request.
     Returns 403 Forbidden if the request is not from HTMX.
+
+    Detects HTMX requests by checking for the HX-Request header.
     """
 
     def dispatch(self, request, *args, **kwargs):
-        if not getattr(request, "htmx", False):
+        # HTMX sends HX-Request: true header with all requests
+        if not request.headers.get("HX-Request"):
             return HttpResponseForbidden("This view requires an HTMX request")
         return super().dispatch(request, *args, **kwargs)
 
