@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} Product - Django HX Forms Demo{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h2>{{ action }} Product</h2>
+                <p class="text-muted mb-0">
+                    Select a product type to see the form fields update dynamically
+                </p>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if product %}
+                        <input type="hidden" name="product_id" value="{{ product.pk }}">
+                    {% endif %}
+
+                    <!-- Loading indicator -->
+                    <div id="form-loading" class="htmx-indicator">
+                        <div class="alert alert-info">
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            Updating form...
+                        </div>
+                    </div>
+
+                    <!-- Form container that HTMX will update -->
+                    <div id="product-form">
+                        {% include "shopping_cart/partials/product_form_fields.html" %}
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            Save Product
+                        </button>
+                        <a href="{% url 'shopping_cart:product-list' %}" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Information card about reactive forms -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">About This Demo</h5>
+                <p class="card-text">
+                    This form demonstrates the reactive capabilities of django-hx-forms:
+                </p>
+                <ul>
+                    <li><strong>T-Shirts</strong>: Show size field (S/M/L) and colour options (Black/White)</li>
+                    <li><strong>Trousers</strong>: Show waist size field (28-42) and colour options (Black/Blue/Brown)</li>
+                    <li>Fields are automatically enabled/disabled based on product type</li>
+                    <li>Irrelevant fields are reset when switching product types</li>
+                    <li>All updates happen without page refresh using HTMX</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

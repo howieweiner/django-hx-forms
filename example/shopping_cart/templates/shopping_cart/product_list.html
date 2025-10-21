@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Products - Django HX Forms Demo{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Products</h1>
+            <a href="{% url 'shopping_cart:product-create' %}" class="btn btn-primary">
+                Add New Product
+            </a>
+        </div>
+
+        {% if products %}
+            <div class="card">
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Type</th>
+                                <th>Details</th>
+                                <th>Colour</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                                <tr>
+                                    <td>{{ product }}</td>
+                                    <td>
+                                        {% if product.type == 'tshirt' %}
+                                            <span class="badge bg-info">T-Shirt</span>
+                                        {% elif product.type == 'trousers' %}
+                                            <span class="badge bg-success">Trousers</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if product.type == 'tshirt' %}
+                                            Size: {{ product.get_size_display }}
+                                        {% elif product.type == 'trousers' %}
+                                            Waist: {{ product.waist_size }}"
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ product.colour|title }}</span>
+                                    </td>
+                                    <td>{{ product.created_at|date:"Y-m-d H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'shopping_cart:product-update' product.pk %}"
+                                           class="btn btn-sm btn-outline-primary">
+                                            Edit
+                                        </a>
+                                        <a href="{% url 'shopping_cart:product-delete' product.pk %}"
+                                           class="btn btn-sm btn-outline-danger">
+                                            Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <h4 class="alert-heading">No products yet!</h4>
+                <p>Start by creating your first product using the button above.</p>
+                <hr>
+                <p class="mb-0">
+                    This demo showcases reactive forms using django-hx-forms.
+                    The form fields will dynamically update based on the product type you select.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
