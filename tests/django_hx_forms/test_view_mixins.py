@@ -3,7 +3,6 @@ from django import forms
 from django.http import HttpResponse
 from django.test import RequestFactory
 from django.views.generic import View
-from django_htmx.middleware import HtmxDetails
 
 from django_hx_forms.views.mixins import HtmxFormUpdateViewMixin, IsHtmxRequestMixin
 
@@ -56,54 +55,29 @@ def setup_view_for_testing(view_class, request, **view_kwargs):
 @pytest.fixture
 def htmx_request(request_factory):
     """Create an HTMX request"""
-    request = request_factory.post(
+    return request_factory.post(
         "/test/",
         {"test_field": "test_value"},
         HTTP_HX_REQUEST="true",
         HTTP_HX_TRIGGER_NAME="test_field",
     )
-    request.htmx = HtmxDetails(request)
-    # Need to manually set this to True since we're not using middleware
-    request.htmx._boosted = False
-    request.htmx._current_url = None
-    request.htmx._history_restore_request = False
-    request.htmx._prompt = None
-    request.htmx._request = True
-    request.htmx._target = None
-    request.htmx._trigger = None
-    request.htmx._trigger_name = "test_field"
-    return request
 
 
 @pytest.fixture
 def non_htmx_request(request_factory):
     """Create a non-HTMX request"""
-    request = request_factory.post("/test/", {"test_field": "test_value"})
-    request.htmx = HtmxDetails(request)
-    # Default HtmxDetails should be falsy for non-HTMX requests
-    return request
+    return request_factory.post("/test/", {"test_field": "test_value"})
 
 
 @pytest.fixture
 def htmx_get_request(request_factory):
     """Create an HTMX GET request"""
-    request = request_factory.get(
+    return request_factory.get(
         "/test/",
         {"test_field": "test_value"},
         HTTP_HX_REQUEST="true",
         HTTP_HX_TRIGGER_NAME="test_field",
     )
-    request.htmx = HtmxDetails(request)
-    # Need to manually set this to True since we're not using middleware
-    request.htmx._boosted = False
-    request.htmx._current_url = None
-    request.htmx._history_restore_request = False
-    request.htmx._prompt = None
-    request.htmx._request = True
-    request.htmx._target = None
-    request.htmx._trigger = None
-    request.htmx._trigger_name = "test_field"
-    return request
 
 
 class TestIsHtmxRequestMixin:
@@ -387,9 +361,6 @@ class TestEdgeCases:
         request = request_factory.post(
             "/test/", {"test_field": "test_value"}, HTTP_HX_REQUEST="true"
         )
-        request.htmx = HtmxDetails(request)
-        # Set HTMX to True but no trigger name
-        request.htmx._request = True
 
         class MockView(HtmxFormUpdateViewMixin):
             form_class = MockForm
@@ -410,10 +381,6 @@ class TestEdgeCases:
         request = request_factory.post(
             "/test/", HTTP_HX_REQUEST="true", HTTP_HX_TRIGGER_NAME="test_field"
         )
-        request.htmx = HtmxDetails(request)
-        # Set HTMX to True
-        request.htmx._request = True
-        request.htmx._trigger_name = "test_field"
 
         class MockView(HtmxFormUpdateViewMixin):
             form_class = MockForm
