@@ -1,70 +1,59 @@
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
-from django.views.decorators.http import require_http_methods
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+
+from django_hx_forms.views import HtmxFormUpdateViewMixin
 
 from .forms import ProductForm
 from .models import Product
 
 
-def product_list(request):
+class ProductListView(ListView):
     """Display a list of all products."""
-    products = Product.objects.all()
-    return render(
-        request, "shopping_cart/product_list.html", {"products": products}
-    )
+
+    model = Product
+    template_name = "shopping_cart/product_list.html"
+    context_object_name = "products"
 
 
-def product_create(request):
+class ProductCreateView(CreateView):
     """Create a new product."""
-    if request.method == "POST":
-        form = ProductForm(data=request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("shopping_cart:product-list")
-    else:
-        form = ProductForm()
 
-    return render(
-        request,
-        "shopping_cart/product_form.html",
-        {"form": form, "action": "Create"},
-    )
+    model = Product
+    form_class = ProductForm
+    template_name = "shopping_cart/product_form.html"
+    success_url = reverse_lazy("shopping_cart:product-list")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["action"] = "Create"
+        return context
 
 
-def product_update(request, pk):
+class ProductUpdateView(UpdateView):
     """Update an existing product."""
-    product = get_object_or_404(Product, pk=pk)
 
-    if request.method == "POST":
-        form = ProductForm(data=request.POST, instance=product)
-        if form.is_valid():
-            form.save()
-            return redirect("shopping_cart:product-list")
-    else:
-        form = ProductForm(instance=product)
+    model = Product
+    form_class = ProductForm
+    template_name = "shopping_cart/product_form.html"
+    success_url = reverse_lazy("shopping_cart:product-list")
 
-    return render(
-        request,
-        "shopping_cart/product_form.html",
-        {"form": form, "action": "Update", "product": product},
-    )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["action"] = "Update"
+        context["product"] = self.object
+        return context
 
 
-def product_delete(request, pk):
+class ProductDeleteView(DeleteView):
     """Delete a product."""
-    product = get_object_or_404(Product, pk=pk)
 
-    if request.method == "POST":
-        product.delete()
-        return redirect("shopping_cart:product-list")
-
-    return render(
-        request, "shopping_cart/product_confirm_delete.html", {"product": product}
-    )
+    model = Product
+    template_name = "shopping_cart/product_confirm_delete.html"
+    success_url = reverse_lazy("shopping_cart:product-list")
 
 
-@require_http_methods(["POST"])
-def product_form_update(request):
+class ProductFormUpdateView(HtmxFormUpdateViewMixin):
     """
     Handle HTMX form updates for both create and update views.
 
@@ -72,30 +61,21 @@ def product_form_update(request):
     It returns an updated form fragment with the appropriate fields enabled/disabled
     and choices updated based on the trigger field.
     """
-    # Get the trigger field from HTMX headers
-    trigger_field = request.POST.get("hx-trigger-name") or request.headers.get(
-        "HX-Trigger-Name"
-    )
 
-    # Check if we're updating an existing product
-    product_id = request.POST.get("product_id")
-    instance = None
-    if product_id:
-        instance = get_object_or_404(Product, pk=product_id)
+    form_class = ProductForm
+    template_name = "shopping_cart/partials/product_form_fields.html"
 
-    # Create form with HTMX data and trigger field
-    form = ProductForm(
-        htmx_data=request.POST,
-        trigger_field=trigger_field,
-        instance=instance,
-    )
+    def get_form_instance(self):
+        """Get the product instance if updating an existing product."""
+        product_id = self.request.POST.get("product_id")
+        if product_id:
+            return get_object_or_404(Product, pk=product_id)
+        return None
 
-    # Call check_form_state to update field states based on current values
-    form.check_form_state()
 
-    # Return only the form HTML for HTMX to swap
-    return render(
-        request,
-        "shopping_cart/partials/product_form_fields.html",
-        {"form": form},
-    )
+# Keep the original names for backward compatibility
+product_list = ProductListView.as_view()
+product_create = ProductCreateView.as_view()
+product_update = ProductUpdateView.as_view()
+product_delete = ProductDeleteView.as_view()
+product_form_update = ProductFormUpdateView.as_view()
