@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Django HX Forms Demo{% endblock %}</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
@@ -21,37 +21,34 @@
         .htmx-request.htmx-indicator {
             display: inline;
         }
-        body {
-            padding-top: 20px;
-        }
     </style>
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'shopping_cart:product-list' %}">Django HX Forms Demo</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'shopping_cart:product-list' %}">Products</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'shopping_cart:product-create' %}">Add Product</a>
-                    </li>
-                </ul>
+<body class="bg-gray-50">
+    <nav class="bg-blue-600 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{% url 'shopping_cart:product-list' %}" class="text-xl font-bold">
+                        Django HX Forms Demo
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'shopping_cart:product-list' %}" class="hover:text-blue-200 transition">
+                        Products
+                    </a>
+                    <a href="{% url 'shopping_cart:product-create' %}" class="hover:text-blue-200 transition">
+                        Add Product
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             {% endfor %}
         {% endif %}
@@ -59,8 +56,5 @@
         {% block content %}
         {% endblock %}
     </div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

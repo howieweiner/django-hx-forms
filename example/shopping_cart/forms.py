@@ -26,9 +26,9 @@ class ProductForm(HtmxModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Add Bootstrap classes for styling
+        # Add Tailwind CSS classes for styling
         for field_name, field in self.fields.items():
-            field.widget.attrs["class"] = "form-control"
+            field.widget.attrs["class"] = "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
 
         # Set up the form based on current state
         self.check_form_state()
@@ -89,8 +89,8 @@ class ProductForm(HtmxModelForm):
         }
 
         widgets = {
-            "type": forms.Select(attrs={"class": "form-control"}),
-            "size": forms.Select(attrs={"class": "form-control"}),
-            "waist_size": forms.Select(attrs={"class": "form-control"}),
-            "colour": forms.Select(attrs={"class": "form-control"}),
+            "type": forms.Select(attrs={"class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"}),
+            "size": forms.Select(attrs={"class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"}),
+            "waist_size": forms.Select(attrs={"class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"}),
+            "colour": forms.Select(attrs={"class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"}),
         }
