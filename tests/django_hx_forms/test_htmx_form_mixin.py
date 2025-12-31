@@ -34,7 +34,6 @@ class MockHtmxForm(HtmxFormMixin, forms.Form):
 
     def __init__(self, *args, **kwargs):
         # Pop the request parameter like CrispyFormMixin does
-        self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
 
     class Meta:
@@ -57,7 +56,6 @@ class MockHtmxModelForm(HtmxModelForm):
 
     def __init__(self, *args, **kwargs):
         # Pop the request parameter like CrispyFormMixin does
-        self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
 
     class Meta:
@@ -92,7 +90,7 @@ class MockHtmxFormMixinInitialization:
 
     def test_form_initialization_without_htmx_data(self, mock_request):
         """Form should initialize properly without HTMX data"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         assert form.trigger_field is None
         assert form.htmx_data is None
@@ -100,9 +98,7 @@ class MockHtmxFormMixinInitialization:
 
     def test_form_initialization_with_htmx_data(self, mock_request, htmx_data):
         """Form should initialize properly with HTMX data"""
-        form = MockHtmxForm(
-            request=mock_request, htmx_data=htmx_data, trigger_field="test_field"
-        )
+        form = MockHtmxForm(htmx_data=htmx_data, trigger_field="test_field")
 
         assert form.trigger_field == "test_field"
         assert form.htmx_data is not None
@@ -110,14 +106,14 @@ class MockHtmxFormMixinInitialization:
 
     def test_form_initialization_with_boolean_field(self, mock_request, htmx_data):
         """Boolean fields should be properly converted from 'on' to True"""
-        form = MockHtmxForm(request=mock_request, htmx_data=htmx_data)
+        form = MockHtmxForm(htmx_data=htmx_data)
 
         assert form.fields["boolean_field"].initial is True
 
     def test_form_initialization_with_boolean_field_false(self, mock_request):
         """Boolean fields should be properly handled when False/empty"""
         htmx_data = {"boolean_field": ""}
-        form = MockHtmxForm(request=mock_request, htmx_data=htmx_data)
+        form = MockHtmxForm(htmx_data=htmx_data)
 
         assert form.fields["boolean_field"].initial is False
 
@@ -127,7 +123,7 @@ class TestHtmxTriggerConfiguration:
 
     def test_htmx_triggers_configured_on_fields(self, mock_request):
         """HTMX attributes should be configured on trigger fields"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         # Check that HTMX attributes are set on trigger fields
         assert form.fields["test_field"].widget.attrs["hx-post"] == "/test-url/"
@@ -145,7 +141,7 @@ class TestHtmxTriggerConfiguration:
 
     def test_non_trigger_fields_have_no_htmx_attributes(self, mock_request):
         """Non-trigger fields should not have HTMX attributes"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         # Check that non-trigger fields don't have HTMX attributes
         assert "hx-post" not in form.fields["boolean_field"].widget.attrs
@@ -159,13 +155,12 @@ class TestHtmxTriggerConfiguration:
             test_field = CharField()
 
             def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
                 super().__init__(*args, **kwargs)
 
             class Meta:
                 htmx_trigger_fields = ["test_field"]
 
-        FormWithoutHxPost(request=mock_request)
+        FormWithoutHxPost()
 
         assert "htmx_trigger_fields specified but hx_post not set" in caplog.text
 
@@ -177,13 +172,12 @@ class TestHtmxTriggerConfiguration:
             test_field = CharField()
 
             def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
                 super().__init__(*args, **kwargs)
 
             class Meta:
                 htmx_trigger_fields = ["test_field"]
 
-        FormWithoutHxTarget(request=mock_request)
+        FormWithoutHxTarget()
 
         assert "htmx_trigger_fields specified but hx_target not set" in caplog.text
 
@@ -193,20 +187,20 @@ class TestFocusFieldHandling:
 
     def test_default_focus_field_gets_autofocus(self, mock_request):
         """Default focus field should get autofocus attribute"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         assert form.fields["test_field"].widget.attrs.get("autofocus") is True
 
     def test_trigger_field_overrides_default_focus(self, mock_request):
         """Trigger field should override default focus field"""
-        form = MockHtmxForm(request=mock_request, trigger_field="another_field")
+        form = MockHtmxForm(trigger_field="another_field")
 
         assert form.fields["another_field"].widget.attrs.get("autofocus") is True
         assert form.fields["test_field"].widget.attrs.get("autofocus") is None
 
     def test_invalid_focus_field_does_not_cause_error(self, mock_request):
         """Invalid focus field should not cause an error"""
-        form = MockHtmxForm(request=mock_request, trigger_field="nonexistent_field")
+        form = MockHtmxForm(trigger_field="nonexistent_field")
 
         # Should not raise an error
         assert "autofocus" not in form.fields["test_field"].widget.attrs
@@ -219,7 +213,6 @@ class TestFocusFieldHandling:
             field2 = CharField()
 
             def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
                 super().__init__(*args, **kwargs)
 
             def get_default_focus_field(self):
@@ -228,7 +221,7 @@ class TestFocusFieldHandling:
             class Meta:
                 pass
 
-        form = CustomFocusForm(request=mock_request)
+        form = CustomFocusForm()
         assert form.fields["field2"].widget.attrs.get("autofocus") is True
 
 
@@ -243,9 +236,7 @@ class TestFieldResetFunctionality:
             "choice_field": "2",
         }
 
-        form = MockHtmxForm(
-            request=mock_request, htmx_data=htmx_data, trigger_field="test_field"
-        )
+        form = MockHtmxForm(htmx_data=htmx_data, trigger_field="test_field")
 
         # test_field should keep its value
         assert form.fields["test_field"].initial == "new_value"
@@ -255,7 +246,7 @@ class TestFieldResetFunctionality:
 
     def test_no_resets_without_trigger_field(self, mock_request, htmx_data):
         """No resets should occur without a trigger field"""
-        form = MockHtmxForm(request=mock_request, htmx_data=htmx_data)
+        form = MockHtmxForm(htmx_data=htmx_data)
 
         # All fields should keep their values
         assert form.fields["test_field"].initial == "test_value"
@@ -265,7 +256,6 @@ class TestFieldResetFunctionality:
     def test_no_resets_for_unconfigured_trigger(self, mock_request, htmx_data):
         """No resets should occur for trigger fields not in configuration"""
         form = MockHtmxForm(
-            request=mock_request,
             htmx_data=htmx_data,
             trigger_field="boolean_field",  # Not in reset configuration
         )
@@ -281,13 +271,13 @@ class TestFieldUtilityMethods:
 
     def test_is_field_disabled_nonexistent_field(self, mock_request):
         """is_field_disabled should return False for nonexistent fields"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         assert form.is_field_disabled("nonexistent_field") is False
 
     def test_disable_enable_field(self, mock_request):
         """disable_field and enable_field should work correctly"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         # Initially not disabled
         assert not form.is_field_disabled("test_field")
@@ -304,7 +294,7 @@ class TestFieldUtilityMethods:
 
     def test_disable_enable_nonexistent_field(self, mock_request):
         """disable/enable nonexistent field should not cause error"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         # Should not raise an error
         form.disable_field("nonexistent")
@@ -312,7 +302,7 @@ class TestFieldUtilityMethods:
 
     def test_set_field_required(self, mock_request):
         """set_field_required should work correctly"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         # Initially not required
         assert not form.fields["test_field"].required
@@ -329,7 +319,7 @@ class TestFieldUtilityMethods:
 
     def test_batch_field_operations(self, mock_request):
         """Batch operations on multiple fields should work"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         fields_to_modify = ["test_field", "another_field"]
 
@@ -350,7 +340,7 @@ class TestFieldUtilityMethods:
 
     def test_remove_field(self, mock_request):
         """remove_field should remove fields from form"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         assert "test_field" in form.fields
         form.remove_field("test_field")
@@ -358,7 +348,7 @@ class TestFieldUtilityMethods:
 
     def test_remove_fields_batch(self, mock_request):
         """remove_fields should remove multiple fields"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         fields_to_remove = ["test_field", "another_field"]
         form.remove_fields(fields_to_remove)
@@ -368,14 +358,14 @@ class TestFieldUtilityMethods:
 
     def test_set_field_initial(self, mock_request):
         """set_field_initial should set initial values"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         form.set_field_initial("test_field", "new_initial_value")
         assert form.fields["test_field"].initial == "new_initial_value"
 
     def test_reset_select_field(self, mock_request):
         """reset_select_field should reset field to empty string"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         form.fields["choice_field"].initial = "1"
         form.reset_select_field("choice_field")
@@ -389,13 +379,12 @@ class TestFieldUtilityMethods:
             category = ModelChoiceField(queryset=MockModel.objects.none())
 
             def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
                 super().__init__(*args, **kwargs)
 
             class Meta:
                 pass
 
-        form = FormWithQueryset(request=mock_request)
+        form = FormWithQueryset()
 
         # Should return the queryset
         queryset = form.get_field_queryset("category")
@@ -403,13 +392,13 @@ class TestFieldUtilityMethods:
 
     def test_get_field_queryset_nonexistent_field(self, mock_request):
         """get_field_queryset should return None for nonexistent fields"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         assert form.get_field_queryset("nonexistent_field") is None
 
     def test_get_field_queryset_field_without_queryset(self, mock_request):
         """get_field_queryset should return None for fields without queryset"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         # CharField doesn't have a queryset attribute
         assert form.get_field_queryset("test_field") is None
@@ -422,13 +411,12 @@ class TestFieldUtilityMethods:
             category = ModelChoiceField(queryset=MockModel.objects.none())
 
             def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
                 super().__init__(*args, **kwargs)
 
             class Meta:
                 pass
 
-        form = FormWithQueryset(request=mock_request)
+        form = FormWithQueryset()
 
         # Initially the queryset is empty (none())
         assert form.fields["category"].queryset.query.is_empty()
@@ -442,7 +430,7 @@ class TestFieldUtilityMethods:
 
     def test_set_field_queryset_nonexistent_field(self, mock_request):
         """set_field_queryset should silently ignore nonexistent fields"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         # Should not raise an error
         form.set_field_queryset("nonexistent_field", MockModel.objects.none())
@@ -455,7 +443,7 @@ class TestGetFieldValue:
         """get_field_value should prioritize htmx_data"""
         form_data = {"test_field": "form_data_value"}
 
-        form = MockHtmxForm(data=form_data, request=mock_request, htmx_data=htmx_data)
+        form = MockHtmxForm(data=form_data, htmx_data=htmx_data)
 
         # Should return value from htmx_data, not form data
         assert form.get_field_value("test_field") == "test_value"
@@ -464,7 +452,7 @@ class TestGetFieldValue:
         """get_field_value should fall back to form data"""
         form_data = {"test_field": "form_data_value"}
 
-        form = MockHtmxForm(data=form_data, request=mock_request)
+        form = MockHtmxForm(data=form_data)
 
         assert form.get_field_value("test_field") == "form_data_value"
 
@@ -472,13 +460,13 @@ class TestGetFieldValue:
         """get_field_value should convert boolean fields properly"""
         htmx_data = {"boolean_field": "on"}
 
-        form = MockHtmxForm(request=mock_request, htmx_data=htmx_data)
+        form = MockHtmxForm(htmx_data=htmx_data)
 
         assert form.get_field_value("boolean_field") is True
 
     def test_get_field_value_nonexistent_field(self, mock_request):
         """get_field_value should return None for nonexistent fields"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         assert form.get_field_value("nonexistent_field") is None
 
@@ -490,22 +478,19 @@ class TestGetFieldValue:
             test_field = forms.CharField(required=False)
 
             def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
                 super().__init__(*args, **kwargs)
 
             class Meta:
                 pass
 
-        form = PlainHtmxForm(request=mock_request)
+        form = PlainHtmxForm()
 
         # This should not raise an AttributeError
         assert form.get_field_value("test_field") is None
         assert form.get_field_value("nonexistent_field") is None
 
         # Test with form data
-        form_with_data = PlainHtmxForm(
-            data={"test_field": "test_value"}, request=mock_request
-        )
+        form_with_data = PlainHtmxForm(data={"test_field": "test_value"})
         assert form_with_data.get_field_value("test_field") == "test_value"
 
     def test_get_field_value_boolean_field_unchecked_from_form_data(self, mock_request):
@@ -515,7 +500,7 @@ class TestGetFieldValue:
             "test_field": "some_value"
         }  # boolean_field not present = unchecked
 
-        form = MockHtmxForm(data=form_data, request=mock_request)
+        form = MockHtmxForm(data=form_data)
 
         # This should return False, not None
         assert form.get_field_value("boolean_field") is False
@@ -524,22 +509,20 @@ class TestGetFieldValue:
         """get_field_value should return True for checked boolean fields from form data"""
         form_data = {"test_field": "some_value", "boolean_field": "on"}
 
-        form = MockHtmxForm(data=form_data, request=mock_request)
+        form = MockHtmxForm(data=form_data)
 
         assert form.get_field_value("boolean_field") is True
 
     def test_get_field_value_unbound_form_returns_none_for_boolean(self, mock_request):
         """get_field_value should return None for boolean fields in unbound forms without instance"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         # Unbound form without instance should return None for boolean fields
         assert form.get_field_value("boolean_field") is None
 
     def test_get_field_value_from_initial_data(self, mock_request):
         """get_field_value should return value from form initial data"""
-        form = MockHtmxForm(
-            request=mock_request, initial={"test_field": "initial_value"}
-        )
+        form = MockHtmxForm(initial={"test_field": "initial_value"})
 
         assert form.get_field_value("test_field") == "initial_value"
 
@@ -547,7 +530,6 @@ class TestGetFieldValue:
         """get_field_value should prioritize htmx_data over initial data"""
         htmx_data = {"test_field": "htmx_value"}
         form = MockHtmxForm(
-            request=mock_request,
             htmx_data=htmx_data,
             initial={"test_field": "initial_value"},
         )
@@ -557,14 +539,12 @@ class TestGetFieldValue:
 
     def test_get_field_value_boolean_from_initial_data(self, mock_request):
         """get_field_value should handle boolean fields from initial data correctly"""
-        form = MockHtmxForm(request=mock_request, initial={"boolean_field": True})
+        form = MockHtmxForm(initial={"boolean_field": True})
 
         assert form.get_field_value("boolean_field") is True
 
         # Also test False value
-        form_false = MockHtmxForm(
-            request=mock_request, initial={"boolean_field": False}
-        )
+        form_false = MockHtmxForm(initial={"boolean_field": False})
 
         assert form_false.get_field_value("boolean_field") is False
 
@@ -575,7 +555,6 @@ class TestGetFieldValue:
         class FormWithInstance(HtmxFormMixin, forms.Form):
             # Form has no fields, so initial won't contain instance values
             def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
                 self.instance = kwargs.pop("instance", None)
                 super().__init__(*args, **kwargs)
 
@@ -583,7 +562,7 @@ class TestGetFieldValue:
                 pass
 
         instance = MockModel(name="Test Name", category="Test Category")
-        form = FormWithInstance(request=mock_request, instance=instance)
+        form = FormWithInstance(instance=instance)
 
         # Should get value from instance since it's not in htmx_data, data, or initial
         assert form.get_field_value("name") == "Test Name"
@@ -611,7 +590,6 @@ class TestGetFieldValue:
         class FormWithFKInstance(HtmxFormMixin, forms.Form):
             # Form has no fields, so initial won't contain instance values
             def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
                 self.instance = kwargs.pop("instance", None)
                 super().__init__(*args, **kwargs)
 
@@ -625,7 +603,7 @@ class TestGetFieldValue:
         instance = ModelWithFK(name="Test")
         instance.related = related_obj
 
-        form = FormWithFKInstance(request=mock_request, instance=instance)
+        form = FormWithFKInstance(instance=instance)
 
         # Should return the pk, not the object
         assert form.get_field_value("related") == 42
@@ -636,7 +614,7 @@ class TestHtmxFieldErrors:
 
     def test_add_htmx_field_error(self, mock_request):
         """add_htmx_field_error should add errors without validation"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         form.add_htmx_field_error("test_field", "Test error message")
 
@@ -645,7 +623,7 @@ class TestHtmxFieldErrors:
 
     def test_add_multiple_htmx_field_errors(self, mock_request):
         """Should be able to add multiple errors to the same field"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         form.add_htmx_field_error("test_field", "First error")
         form.add_htmx_field_error("test_field", "Second error")
@@ -666,7 +644,6 @@ class TestSkipHtmxUpdate:
             field2 = CharField()
 
             def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
                 super().__init__(*args, **kwargs)
 
             def skip_htmx_update_for_field(self, field_name, field):
@@ -676,7 +653,7 @@ class TestSkipHtmxUpdate:
                 pass
 
         htmx_data = {"field1": "value1", "field2": "value2"}
-        form = CustomForm(request=mock_request, htmx_data=htmx_data)
+        form = CustomForm(htmx_data=htmx_data)
 
         # field1 should be skipped (no initial value set)
         assert form.fields["field1"].initial is None
@@ -689,7 +666,7 @@ class TestDisabledFieldHandling:
 
     def test_disabled_fields_skip_htmx_update(self, mock_request, htmx_data):
         """Disabled fields should skip HTMX updates unless reset"""
-        form = MockHtmxForm(request=mock_request, htmx_data=htmx_data)
+        form = MockHtmxForm(htmx_data=htmx_data)
 
         # Disable a field after initialization
         form.disable_field("another_field")
@@ -710,7 +687,6 @@ class TestDisabledFieldHandling:
             disabled_field = CharField(required=False)
 
             def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
                 super().__init__(*args, **kwargs)
                 # Disable the field
                 self.fields["disabled_field"].widget.attrs["disabled"] = True
@@ -727,9 +703,7 @@ class TestDisabledFieldHandling:
         }
 
         # Create form with trigger_field triggering reset of disabled_field
-        form = FormWithDisabledField(
-            request=mock_request, htmx_data=htmx_data, trigger_field="trigger_field"
-        )
+        form = FormWithDisabledField(htmx_data=htmx_data, trigger_field="trigger_field")
 
         # The disabled field should be updated because it's in the reset list
         # First it gets reset to empty string, then set from htmx_data
@@ -738,9 +712,7 @@ class TestDisabledFieldHandling:
     def test_was_field_reset_returns_true_for_reset_fields(self, mock_request):
         """_was_field_reset should return True for fields in reset list"""
         htmx_data = {"test_field": "value"}
-        form = MockHtmxForm(
-            request=mock_request, htmx_data=htmx_data, trigger_field="test_field"
-        )
+        form = MockHtmxForm(htmx_data=htmx_data, trigger_field="test_field")
 
         # another_field is in the reset list for test_field trigger
         assert form._was_field_reset("another_field") is True
@@ -750,7 +722,7 @@ class TestDisabledFieldHandling:
 
     def test_was_field_reset_returns_false_without_trigger(self, mock_request):
         """_was_field_reset should return False when no trigger_field"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         assert form._was_field_reset("another_field") is False
 
@@ -760,7 +732,7 @@ class TestCheckFormState:
 
     def test_check_form_state_default_implementation(self, mock_request):
         """check_form_state should have a default no-op implementation"""
-        form = MockHtmxForm(request=mock_request)
+        form = MockHtmxForm()
 
         # Should not raise an error
         form.check_form_state()
@@ -772,7 +744,6 @@ class TestCheckFormState:
             test_field = CharField()
 
             def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
                 super().__init__(*args, **kwargs)
 
             def check_form_state(self):
@@ -781,7 +752,7 @@ class TestCheckFormState:
             class Meta:
                 pass
 
-        form = CustomForm(request=mock_request)
+        form = CustomForm()
         form.check_form_state()
 
         assert form.is_field_disabled("test_field")

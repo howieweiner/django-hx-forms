@@ -1,58 +1,52 @@
 {% extends "base.html" %}
 
-{% block title %}Products - Django HX Forms Demo{% endblock %}
+{% block title %}Shopping Cart - Django HX Forms Demo{% endblock %}
 
 {% block content %}
 <div class="mb-6 flex justify-between items-center">
-    <h1 class="text-3xl font-bold text-gray-900">Products</h1>
-    <a href="{% url 'shopping_cart:product-create' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition">
-        Add New Product
+    <h1 class="text-3xl font-bold text-gray-900">Shopping Cart</h1>
+    <a href="{% url 'shopping_cart:item-add' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition">
+        Add Item to Cart
     </a>
 </div>
 
-{% if products %}
+{% if items %}
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Colour</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                {% for product in products %}
+                {% for item in items %}
                     <tr class="hover:bg-gray-50">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ product }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            {% if product.type == 'tshirt' %}
+                            {% if item.type == 'tshirt' %}
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">T-Shirt</span>
-                            {% elif product.type == 'trousers' %}
+                            {% elif item.type == 'trousers' %}
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Trousers</span>
                             {% endif %}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {% if product.type == 'tshirt' %}
-                                Size: {{ product.get_size_display }}
-                            {% elif product.type == 'trousers' %}
-                                Waist: {{ product.waist_size }}"
+                            {% if item.type == 'tshirt' %}
+                                Size: {{ item.get_size_display }}
+                            {% elif item.type == 'trousers' %}
+                                Waist: {{ item.waist_size }}"
                             {% endif %}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">{{ product.colour|title }}</span>
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">{{ item.colour|title }}</span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ product.created_at|date:"Y-m-d H:i" }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                            <a href="{% url 'shopping_cart:product-update' product.pk %}"
-                               class="text-blue-600 hover:text-blue-900">
-                                Edit
-                            </a>
-                            <a href="{% url 'shopping_cart:product-delete' product.pk %}"
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{% url 'shopping_cart:item-delete' item.pk %}"
                                class="text-red-600 hover:text-red-900">
-                                Delete
+                                Remove
                             </a>
                         </td>
                     </tr>
@@ -62,8 +56,8 @@
     </div>
 {% else %}
     <div class="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-lg">
-        <h4 class="text-xl font-bold text-blue-900 mb-2">No products yet!</h4>
-        <p class="text-blue-800 mb-3">Start by creating your first product using the button above.</p>
+        <h4 class="text-xl font-bold text-blue-900 mb-2">Your cart is empty!</h4>
+        <p class="text-blue-800 mb-3">Start by adding an item to your cart using the button above.</p>
         <hr class="border-blue-200 my-4">
         <p class="text-blue-700">
             This demo showcases reactive forms using django-hx-forms.

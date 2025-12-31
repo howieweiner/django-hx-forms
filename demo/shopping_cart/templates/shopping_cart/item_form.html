@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}{{ action }} Product - Django HX Forms Demo{% endblock %}
+{% block title %}Add Item to Cart - Django HX Forms Demo{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto">
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-            <h2 class="text-2xl font-bold text-gray-900">{{ action }} Product</h2>
+            <h2 class="text-2xl font-bold text-gray-900">Add Item to Cart</h2>
             <p class="text-sm text-gray-600 mt-1">
                 Select a product type to see the form fields update dynamically
             </p>
@@ -14,10 +14,6 @@
         <div class="px-6 py-6">
             <form method="post">
                 {% csrf_token %}
-
-                {% if product %}
-                    <input type="hidden" name="product_id" value="{{ product.pk }}">
-                {% endif %}
 
                 <!-- Loading indicator -->
                 <div id="form-loading" class="htmx-indicator mb-4">
@@ -31,15 +27,15 @@
                 </div>
 
                 <!-- Form container that HTMX will update -->
-                <div id="product-form">
-                    {% include "shopping_cart/partials/product_form_fields.html" %}
+                <div id="item-form">
+                    {% include "shopping_cart/partials/item_form_fields.html" %}
                 </div>
 
                 <div class="mt-6 flex space-x-3">
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition">
-                        Save Product
+                        Add to Cart
                     </button>
-                    <a href="{% url 'shopping_cart:product-list' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-6 py-2 rounded-lg transition">
+                    <a href="{% url 'shopping_cart:item-list' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-6 py-2 rounded-lg transition">
                         Cancel
                     </a>
                 </div>

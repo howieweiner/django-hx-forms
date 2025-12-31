@@ -62,7 +62,6 @@ class HtmxFormUpdateViewMixin(IsHtmxRequestMixin, FormView):
         instance = self.get_form_instance()
 
         form_kwargs: dict[str, Any] = {
-            "request": self.request,
             "htmx_data": htmx_data,
             "trigger_field": trigger_field,
         }

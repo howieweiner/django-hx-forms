@@ -2,15 +2,6 @@
 
 This is a demonstration project showcasing the capabilities of `django-hx-forms` with a shopping cart product example.
 
-## Features
-
-This demo includes:
-
-- **Product List View**: Display all products in a table
-- **Product Create View**: Create new products with reactive form fields
-- **Product Update View**: Edit existing products with the same reactive behavior
-- **Product Delete View**: Delete products with confirmation
-
 ## Reactive Form Behaviour
 
 The product form demonstrates reactive field updates based on product type:
@@ -22,7 +13,7 @@ The product form demonstrates reactive field updates based on product type:
 
 ### Trousers
 - **Size**: Hidden/disabled
-- **Waist Size**: 28-42 (enabled)
+- **Waist Size**: 28-32 (enabled)
 - **Colour**: Black/Blue/Brown
 
 When you change the product type, the form automatically:
@@ -31,44 +22,40 @@ When you change the product type, the form automatically:
 - Resets previously selected values for non-applicable fields
 - Updates field requirements
 
-All of this happens without a page refresh, using HTMX!
+All of this happens without a page refresh. It uses HTMX and the form config
 
 ## Running the Demo
 
 ### Prerequisites
 
-Make sure you have Python 3.10+ installed.
+Make sure you have Python 3.10+ and [uv](https://docs.astral.sh/uv/) installed.
 
 ### Setup
 
-1. Navigate to the example directory:
+1. Navigate to the demo directory:
    ```bash
-   cd example
+   cd demo
    ```
 
-2. Install dependencies:
+2. Create a virtual environment and install dependencies:
    ```bash
-   pip install -r requirements.txt
+   uv venv
+   uv pip install -r requirements.txt
    ```
 
 3. Run migrations:
    ```bash
-   python manage.py migrate
+   uv run python manage.py migrate
    ```
 
-4. (Optional) Create a superuser to access the admin:
+4. Run the development server:
    ```bash
-   python manage.py createsuperuser
+   uv run python manage.py runserver
    ```
 
-5. Run the development server:
-   ```bash
-   python manage.py runserver
-   ```
-
-6. Open your browser and navigate to:
+5. Open your browser and navigate to:
    - Main app: http://127.0.0.1:8000/
-   - Admin: http://127.0.0.1:8000/admin/
+
 
 ## Project Structure
 

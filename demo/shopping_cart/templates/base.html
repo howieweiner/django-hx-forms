@@ -28,16 +28,16 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <a href="{% url 'shopping_cart:product-list' %}" class="text-xl font-bold">
+                    <a href="{% url 'shopping_cart:item-list' %}" class="text-xl font-bold">
                         Django HX Forms Demo
                     </a>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <a href="{% url 'shopping_cart:product-list' %}" class="hover:text-blue-200 transition">
-                        Products
+                    <a href="{% url 'shopping_cart:item-list' %}" class="hover:text-blue-200 transition">
+                        Cart
                     </a>
-                    <a href="{% url 'shopping_cart:product-create' %}" class="hover:text-blue-200 transition">
-                        Add Product
+                    <a href="{% url 'shopping_cart:item-add' %}" class="hover:text-blue-200 transition">
+                        Add Item
                     </a>
                 </div>
             </div>

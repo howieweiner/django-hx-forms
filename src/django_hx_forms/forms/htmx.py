@@ -20,6 +20,10 @@ class HtmxFormMixin:
     - Set field values from HTMX data
     - Configure HTMX trigger attributes on specified fields
     - Provide utility functions to manage field state
+
+    The mixin accepts and pops the following kwargs before passing to the parent form:
+    - trigger_field: The name of the field that triggered the HTMX request
+    - htmx_data: The QueryDict containing HTMX form data
     """
 
     # Type hints for attributes provided by Django Form classes
