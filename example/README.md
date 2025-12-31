@@ -11,7 +11,7 @@ This demo includes:
 - **Product Update View**: Edit existing products with the same reactive behavior
 - **Product Delete View**: Delete products with confirmation
 
-## Reactive Form Behavior
+## Reactive Form Behaviour
 
 The product form demonstrates reactive field updates based on product type:
 

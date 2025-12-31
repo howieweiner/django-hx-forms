@@ -279,6 +279,12 @@ class TestFieldResetFunctionality:
 class TestFieldUtilityMethods:
     """Test field utility methods"""
 
+    def test_is_field_disabled_nonexistent_field(self, mock_request):
+        """is_field_disabled should return False for nonexistent fields"""
+        form = MockHtmxForm(request=mock_request)
+
+        assert form.is_field_disabled("nonexistent_field") is False
+
     def test_disable_enable_field(self, mock_request):
         """disable_field and enable_field should work correctly"""
         form = MockHtmxForm(request=mock_request)
@@ -374,6 +380,72 @@ class TestFieldUtilityMethods:
         form.fields["choice_field"].initial = "1"
         form.reset_select_field("choice_field")
         assert form.fields["choice_field"].initial == ""
+
+    def test_get_field_queryset(self, mock_request):
+        """get_field_queryset should return queryset for ModelChoiceFields"""
+        from django.forms import ModelChoiceField
+
+        class FormWithQueryset(HtmxFormMixin, forms.Form):
+            category = ModelChoiceField(queryset=MockModel.objects.none())
+
+            def __init__(self, *args, **kwargs):
+                self.request = kwargs.pop("request", None)
+                super().__init__(*args, **kwargs)
+
+            class Meta:
+                pass
+
+        form = FormWithQueryset(request=mock_request)
+
+        # Should return the queryset
+        queryset = form.get_field_queryset("category")
+        assert queryset is not None
+
+    def test_get_field_queryset_nonexistent_field(self, mock_request):
+        """get_field_queryset should return None for nonexistent fields"""
+        form = MockHtmxForm(request=mock_request)
+
+        assert form.get_field_queryset("nonexistent_field") is None
+
+    def test_get_field_queryset_field_without_queryset(self, mock_request):
+        """get_field_queryset should return None for fields without queryset"""
+        form = MockHtmxForm(request=mock_request)
+
+        # CharField doesn't have a queryset attribute
+        assert form.get_field_queryset("test_field") is None
+
+    def test_set_field_queryset(self, mock_request):
+        """set_field_queryset should set queryset for ModelChoiceFields"""
+        from django.forms import ModelChoiceField
+
+        class FormWithQueryset(HtmxFormMixin, forms.Form):
+            category = ModelChoiceField(queryset=MockModel.objects.none())
+
+            def __init__(self, *args, **kwargs):
+                self.request = kwargs.pop("request", None)
+                super().__init__(*args, **kwargs)
+
+            class Meta:
+                pass
+
+        form = FormWithQueryset(request=mock_request)
+
+        # Initially the queryset is empty (none())
+        assert form.fields["category"].queryset.query.is_empty()
+
+        # Set a new queryset
+        new_queryset = MockModel.objects.all()
+        form.set_field_queryset("category", new_queryset)
+
+        # The queryset should no longer be empty
+        assert not form.fields["category"].queryset.query.is_empty()
+
+    def test_set_field_queryset_nonexistent_field(self, mock_request):
+        """set_field_queryset should silently ignore nonexistent fields"""
+        form = MockHtmxForm(request=mock_request)
+
+        # Should not raise an error
+        form.set_field_queryset("nonexistent_field", MockModel.objects.none())
 
 
 class TestGetFieldValue:
@@ -496,6 +568,68 @@ class TestGetFieldValue:
 
         assert form_false.get_field_value("boolean_field") is False
 
+    def test_get_field_value_from_instance(self, mock_request):
+        """get_field_value should return value from instance when not in initial"""
+
+        # Create a form with an instance attribute but where the field is not in initial
+        class FormWithInstance(HtmxFormMixin, forms.Form):
+            # Form has no fields, so initial won't contain instance values
+            def __init__(self, *args, **kwargs):
+                self.request = kwargs.pop("request", None)
+                self.instance = kwargs.pop("instance", None)
+                super().__init__(*args, **kwargs)
+
+            class Meta:
+                pass
+
+        instance = MockModel(name="Test Name", category="Test Category")
+        form = FormWithInstance(request=mock_request, instance=instance)
+
+        # Should get value from instance since it's not in htmx_data, data, or initial
+        assert form.get_field_value("name") == "Test Name"
+        assert form.get_field_value("category") == "Test Category"
+
+    def test_get_field_value_from_instance_with_foreign_key(self, mock_request):
+        """get_field_value should return pk for foreign key fields"""
+
+        class RelatedModel(models.Model):
+            name = models.CharField(max_length=100)
+
+            class Meta:
+                app_label = "htmx_tests"
+
+        class ModelWithFK(models.Model):
+            name = models.CharField(max_length=100)
+            related = models.ForeignKey(
+                RelatedModel, on_delete=models.CASCADE, null=True
+            )
+
+            class Meta:
+                app_label = "htmx_tests"
+
+        # Create a form with an instance attribute but where the field is not in initial
+        class FormWithFKInstance(HtmxFormMixin, forms.Form):
+            # Form has no fields, so initial won't contain instance values
+            def __init__(self, *args, **kwargs):
+                self.request = kwargs.pop("request", None)
+                self.instance = kwargs.pop("instance", None)
+                super().__init__(*args, **kwargs)
+
+            class Meta:
+                pass
+
+        # Create a mock related object with a pk
+        related_obj = RelatedModel(name="Related")
+        related_obj.pk = 42
+
+        instance = ModelWithFK(name="Test")
+        instance.related = related_obj
+
+        form = FormWithFKInstance(request=mock_request, instance=instance)
+
+        # Should return the pk, not the object
+        assert form.get_field_value("related") == 42
+
 
 class TestHtmxFieldErrors:
     """Test HTMX field error functionality"""
@@ -567,6 +701,58 @@ class TestDisabledFieldHandling:
         # Note: This test shows the current behavior, but the field was already
         # updated during initialization, so we test that disabled fields
         # maintain their initial state when re-processing
+
+    def test_disabled_field_is_updated_if_in_reset_list(self, mock_request):
+        """Disabled fields should be updated if they are in the reset list"""
+
+        class FormWithDisabledField(HtmxFormMixin, forms.Form):
+            trigger_field = CharField(required=False)
+            disabled_field = CharField(required=False)
+
+            def __init__(self, *args, **kwargs):
+                self.request = kwargs.pop("request", None)
+                super().__init__(*args, **kwargs)
+                # Disable the field
+                self.fields["disabled_field"].widget.attrs["disabled"] = True
+
+            class Meta:
+                htmx_trigger_fields = []
+                htmx_field_resets = {
+                    "trigger_field": ["disabled_field"],
+                }
+
+        htmx_data = {
+            "trigger_field": "some_value",
+            "disabled_field": "new_value",
+        }
+
+        # Create form with trigger_field triggering reset of disabled_field
+        form = FormWithDisabledField(
+            request=mock_request, htmx_data=htmx_data, trigger_field="trigger_field"
+        )
+
+        # The disabled field should be updated because it's in the reset list
+        # First it gets reset to empty string, then set from htmx_data
+        assert form.fields["disabled_field"].initial == ""
+
+    def test_was_field_reset_returns_true_for_reset_fields(self, mock_request):
+        """_was_field_reset should return True for fields in reset list"""
+        htmx_data = {"test_field": "value"}
+        form = MockHtmxForm(
+            request=mock_request, htmx_data=htmx_data, trigger_field="test_field"
+        )
+
+        # another_field is in the reset list for test_field trigger
+        assert form._was_field_reset("another_field") is True
+        assert form._was_field_reset("choice_field") is True
+        # test_field is not in its own reset list
+        assert form._was_field_reset("test_field") is False
+
+    def test_was_field_reset_returns_false_without_trigger(self, mock_request):
+        """_was_field_reset should return False when no trigger_field"""
+        form = MockHtmxForm(request=mock_request)
+
+        assert form._was_field_reset("another_field") is False
 
 
 class TestCheckFormState:
