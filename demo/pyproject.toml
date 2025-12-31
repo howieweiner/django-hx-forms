@@ -1,0 +1,12 @@
+[project]
+name = "django-hx-forms-demo"
+version = "0.1.0"
+description = "Demo application for django-hx-forms"
+requires-python = ">=3.10"
+dependencies = [
+    "django>=4.2",
+    "django-hx-forms",
+]
+
+[tool.uv.sources]
+django-hx-forms = { path = "..", editable = true }

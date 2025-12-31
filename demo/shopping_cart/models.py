@@ -7,7 +7,7 @@ class Product(models.Model):
 
     The form will dynamically show/hide fields based on the product type:
     - T-shirts have sizes (S/M/L) and colours (Black/White)
-    - Trousers have waist sizes (28-42) and colours (Black/Blue/Brown)
+    - Trousers have waist sizes (28-32) and colours (Black/Blue/Brown)
     """
 
     TYPE_TSHIRT = "tshirt"
@@ -28,7 +28,7 @@ class Product(models.Model):
 
     # Waist sizes from 28 to 42
     WAIST_SIZE_CHOICES = [("", "Select waist size...")] + [
-        (str(i), str(i)) for i in range(28, 43)
+        (str(i), str(i)) for i in range(28, 33)
     ]
 
     TSHIRT_COLOUR_CHOICES = [
@@ -56,15 +56,9 @@ class Product(models.Model):
     )
     colour = models.CharField(max_length=20, blank=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-
     def __str__(self):
         if self.type == self.TYPE_TSHIRT:
             return f"T-Shirt - Size {self.size} - {self.colour.title()}"
         elif self.type == self.TYPE_TROUSERS:
             return f"Trousers - Waist {self.waist_size} - {self.colour.title()}"
-        return f"Product (Type not set)"
+        return "Product (Type not set)"

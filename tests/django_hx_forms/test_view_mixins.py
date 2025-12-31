@@ -13,7 +13,6 @@ class MockForm(forms.Form):
     test_field = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop("request", None)
         self.htmx_data = kwargs.pop("htmx_data", None)
         self.trigger_field = kwargs.pop("trigger_field", None)
         super().__init__(*args, **kwargs)
@@ -29,7 +28,6 @@ class MockFormWithoutCheckFormState(forms.Form):
     test_field = forms.CharField(required=False)
 
     def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop("request", None)
         self.htmx_data = kwargs.pop("htmx_data", None)
         self.trigger_field = kwargs.pop("trigger_field", None)
         super().__init__(*args, **kwargs)
@@ -173,35 +171,6 @@ class TestHtmxFormUpdateViewMixin:
 
         assert response.content == b"Trigger field: test_field"
 
-    def test_form_receives_request_object(self, htmx_request):
-        """Form should receive request object"""
-
-        class MockFormWithRequest(forms.Form):
-            test_field = forms.CharField(required=False)
-
-            def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
-                self.htmx_data = kwargs.pop("htmx_data", None)
-                self.trigger_field = kwargs.pop("trigger_field", None)
-                super().__init__(*args, **kwargs)
-
-            def check_form_state(self):
-                pass
-
-        class MockView(HtmxFormUpdateViewMixin):
-            form_class = MockFormWithRequest
-            template_name = "test.html"
-
-            def render_to_response(self, context, **response_kwargs):
-                form = context["form"]
-                has_request = hasattr(form, "request") and form.request is not None
-                return HttpResponse(f"Form has request: {has_request}")
-
-        view = setup_view_for_testing(MockView, htmx_request)
-        response = view.dispatch(htmx_request)
-
-        assert response.content == b"Form has request: True"
-
     def test_calls_check_form_state_on_form(self, htmx_request):
         """Should call check_form_state on the form if available"""
 
@@ -210,7 +179,6 @@ class TestHtmxFormUpdateViewMixin:
             check_form_state_called = False
 
             def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
                 self.htmx_data = kwargs.pop("htmx_data", None)
                 self.trigger_field = kwargs.pop("trigger_field", None)
                 super().__init__(*args, **kwargs)
@@ -371,7 +339,6 @@ class TestModelFormSupport:
             test_field = forms.CharField(required=False)
 
             def __init__(self, *args, **kwargs):
-                self.request = kwargs.pop("request", None)
                 self.htmx_data = kwargs.pop("htmx_data", None)
                 self.trigger_field = kwargs.pop("trigger_field", None)
                 self.instance = kwargs.pop("instance", None)
@@ -449,7 +416,6 @@ class TestEdgeCases:
 
             def __init__(self, *args, **kwargs):
                 # Must handle the HTMX parameters even if not using the mixin
-                kwargs.pop("request", None)
                 kwargs.pop("htmx_data", None)
                 kwargs.pop("trigger_field", None)
                 super().__init__(*args, **kwargs)

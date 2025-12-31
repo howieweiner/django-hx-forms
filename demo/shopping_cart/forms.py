@@ -7,8 +7,11 @@ from .models import Product
 
 
 class ProductForm(HtmxModelForm):
+    # Override colour to be a ChoiceField since the model field has no choices
+    # This allows dynamic choice updates via self.fields["colour"].choices
+    colour = forms.ChoiceField(choices=[], required=False)
     """
-    Form for creating/updating products with reactive HTMX behavior.
+    Form for adding cart items with reactive HTMX behavior.
 
     When the product type changes:
     - Size field is shown/enabled for t-shirts only
@@ -18,8 +21,8 @@ class ProductForm(HtmxModelForm):
     """
 
     # HTMX configuration
-    hx_post = reverse_lazy("shopping_cart:product-form-update")
-    hx_target = "#product-form"
+    hx_post = reverse_lazy("shopping_cart:item-form-update")
+    hx_target = "#item-form"
     hx_indicator = "#form-loading"
     default_focus_field = "type"
 
@@ -27,8 +30,10 @@ class ProductForm(HtmxModelForm):
         super().__init__(*args, **kwargs)
 
         # Add Tailwind CSS classes for styling
-        for field_name, field in self.fields.items():
-            field.widget.attrs["class"] = "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+        for field in self.fields.values():
+            field.widget.attrs["class"] = (
+                "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            )
 
         # Set up the form based on current state
         self.check_form_state()
@@ -89,8 +94,24 @@ class ProductForm(HtmxModelForm):
         }
 
         widgets = {
-            "type": forms.Select(attrs={"class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"}),
-            "size": forms.Select(attrs={"class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"}),
-            "waist_size": forms.Select(attrs={"class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"}),
-            "colour": forms.Select(attrs={"class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"}),
+            "type": forms.Select(
+                attrs={
+                    "class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                }
+            ),
+            "size": forms.Select(
+                attrs={
+                    "class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                }
+            ),
+            "waist_size": forms.Select(
+                attrs={
+                    "class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                }
+            ),
+            "colour": forms.Select(
+                attrs={
+                    "class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                }
+            ),
         }
