@@ -338,7 +338,7 @@ class HtmxFormMixin:
     # Field value utility methods
     def get_field_value(self, field_name):
         """
-        Get current field value from HTMX data, form data, or instance.
+        Get current field value from HTMX data, form data, initial, or instance.
         Handles boolean field conversion automatically.
 
         Args:
@@ -352,7 +352,7 @@ class HtmxFormMixin:
             self.fields[field_name], BooleanField
         )
 
-        # Priority: htmx_data -> data -> instance
+        # Priority: htmx_data -> initial -> data -> instance
         if self.htmx_data and field_name in self.htmx_data:
             value = self.htmx_data[field_name]
         elif self.data and field_name in self.data:
@@ -361,6 +361,13 @@ class HtmxFormMixin:
             # For boolean fields in bound forms, if the field is absent from form data,
             # it means the checkbox was unchecked, so return False
             return False
+        elif hasattr(self, "initial") and field_name in self.initial:
+            # Check form initial data (for form-only fields not on the model)
+            value = self.initial[field_name]
+            # Boolean values from initial may already be True/False, not "on"
+            if is_boolean_field:
+                return bool(value)
+            return value
         elif (
             hasattr(self, "instance")
             and self.instance

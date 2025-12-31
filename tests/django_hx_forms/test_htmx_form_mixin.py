@@ -463,6 +463,41 @@ class TestGetFieldValue:
         # Unbound form without instance should return None for boolean fields
         assert form.get_field_value("boolean_field") is None
 
+    def test_get_field_value_from_initial_data(self, mock_request):
+        """get_field_value should return value from form initial data"""
+        form = MockHtmxForm(
+            request=mock_request, initial={"test_field": "initial_value"}
+        )
+
+        assert form.get_field_value("test_field") == "initial_value"
+
+    def test_get_field_value_initial_data_priority(self, mock_request):
+        """get_field_value should prioritize htmx_data over initial data"""
+        htmx_data = {"test_field": "htmx_value"}
+        form = MockHtmxForm(
+            request=mock_request,
+            htmx_data=htmx_data,
+            initial={"test_field": "initial_value"},
+        )
+
+        # htmx_data should take priority over initial
+        assert form.get_field_value("test_field") == "htmx_value"
+
+    def test_get_field_value_boolean_from_initial_data(self, mock_request):
+        """get_field_value should handle boolean fields from initial data correctly"""
+        form = MockHtmxForm(
+            request=mock_request, initial={"boolean_field": True}
+        )
+
+        assert form.get_field_value("boolean_field") is True
+
+        # Also test False value
+        form_false = MockHtmxForm(
+            request=mock_request, initial={"boolean_field": False}
+        )
+
+        assert form_false.get_field_value("boolean_field") is False
+
 
 class TestHtmxFieldErrors:
     """Test HTMX field error functionality"""
