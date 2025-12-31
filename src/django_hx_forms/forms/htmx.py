@@ -1,6 +1,12 @@
+from __future__ import annotations
+
 import logging
+from collections.abc import Mapping
+from typing import Any
 
 from django.forms import BooleanField, ModelForm
+from django.forms.fields import Field
+from django.forms.utils import ErrorList
 
 
 class HtmxFormMixin:
@@ -16,12 +22,23 @@ class HtmxFormMixin:
     - Provide utility functions to manage field state
     """
 
-    default_focus_field = None
+    # Type hints for attributes provided by Django Form classes
+    # Note: fields, data, initial, is_bound are inherited from BaseForm
+    fields: dict[str, Field]
+    data: Mapping[str, Any]
+    is_bound: bool
+    error_class: type[ErrorList]
+    _errors: dict[str, ErrorList] | None
+
+    # Type hint for Meta class (used via getattr with defaults)
+    Meta: type
+
+    default_focus_field: str | None = None
 
     # HTMX trigger configuration
-    hx_post = None
-    hx_target = None
-    hx_indicator = None
+    hx_post: str | None = None
+    hx_target: str | None = None
+    hx_indicator: str | None = None
 
     def __init__(self, *args, **kwargs):
         # Pop HTMX-specific parameters
@@ -183,10 +200,6 @@ class HtmxFormMixin:
         # Get fields to reset for the current trigger field
         fields_to_reset = field_resets.get(self.trigger_field, [])
 
-        # If no configuration found, fall back to default reset logic
-        if not fields_to_reset:
-            fields_to_reset = self._get_default_field_resets()
-
         return field_name in fields_to_reset
 
     def disable_field(self, field_name):
@@ -324,7 +337,7 @@ class HtmxFormMixin:
         if field_name in self.fields:
             self.fields[field_name].initial = value
 
-    def set_field_queryset(self, field_name, queryset):
+    def set_field_queryset(self, field_name, queryset: Any) -> None:
         """
         Set the queryset for a specified field.
 
@@ -333,7 +346,7 @@ class HtmxFormMixin:
             queryset: The queryset to set for the field
         """
         if field_name in self.fields:
-            self.fields[field_name].queryset = queryset
+            self.fields[field_name].queryset = queryset  # type: ignore[attr-defined]
 
     # Field value utility methods
     def get_field_value(self, field_name):
