@@ -485,9 +485,7 @@ class TestGetFieldValue:
 
     def test_get_field_value_boolean_from_initial_data(self, mock_request):
         """get_field_value should handle boolean fields from initial data correctly"""
-        form = MockHtmxForm(
-            request=mock_request, initial={"boolean_field": True}
-        )
+        form = MockHtmxForm(request=mock_request, initial={"boolean_field": True})
 
         assert form.get_field_value("boolean_field") is True
 
