@@ -20,6 +20,24 @@ form. Examples:
 The form allows rules to be defined to identify which fields should trigger an update, and which fields are affected
 by this trigger.
 
+## Development Setup
+
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management.
+
+```bash
+# Install dependencies (including dev extras)
+uv sync --extra dev
+
+# Install pre-commit hooks
+uv run pre-commit install
+uv run pre-commit install --hook-type commit-msg
+
+# Run tests
+uv run pytest
+
+# Run type checking
+uv run mypy src
+```
 ## Documentation
 
 Please visit [https://django-hx-forms.readthedocs.io](https://django-hx-forms.readthedocs.io)
