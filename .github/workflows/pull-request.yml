@@ -82,4 +82,4 @@ jobs:
 
     - name: Run mypy
       run: |
-        uv run mypy src/django_htmx_tools
+        uv run mypy src/django_hx_forms
