@@ -353,6 +353,53 @@ class TestHtmxFormUpdateViewMixin:
         assert response.content == b"Form type: MockForm"
 
 
+class TestModelFormSupport:
+    """Test ModelForm support with get_form_instance"""
+
+    def test_get_form_instance_returns_instance(self, htmx_request):
+        """Should pass instance to form when get_form_instance returns one"""
+
+        class MockInstance:
+            """Mock model instance"""
+
+            pk = 42
+            name = "Test Instance"
+
+        class MockModelForm(forms.Form):
+            """Mock ModelForm that accepts instance"""
+
+            test_field = forms.CharField(required=False)
+
+            def __init__(self, *args, **kwargs):
+                self.request = kwargs.pop("request", None)
+                self.htmx_data = kwargs.pop("htmx_data", None)
+                self.trigger_field = kwargs.pop("trigger_field", None)
+                self.instance = kwargs.pop("instance", None)
+                super().__init__(*args, **kwargs)
+
+            def check_form_state(self):
+                pass
+
+        class MockView(HtmxFormUpdateViewMixin):
+            form_class = MockModelForm
+            template_name = "test.html"
+
+            def get_form_instance(self):
+                return MockInstance()
+
+            def render_to_response(self, context, **response_kwargs):
+                form = context["form"]
+                instance = getattr(form, "instance", None)
+                if instance:
+                    return HttpResponse(f"Instance pk: {instance.pk}")
+                return HttpResponse("No instance")
+
+        view = setup_view_for_testing(MockView, htmx_request)
+        response = view.dispatch(htmx_request)
+
+        assert response.content == b"Instance pk: 42"
+
+
 class TestEdgeCases:
     """Test edge cases and error conditions"""
 
