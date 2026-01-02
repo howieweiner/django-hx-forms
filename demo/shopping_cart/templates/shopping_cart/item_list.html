@@ -43,7 +43,11 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">{{ item.colour|title }}</span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                            <a href="{% url 'shopping_cart:item-edit' item.pk %}"
+                               class="text-blue-600 hover:text-blue-900">
+                                Edit
+                            </a>
                             <a href="{% url 'shopping_cart:item-delete' item.pk %}"
                                class="text-red-600 hover:text-red-900">
                                 Remove
