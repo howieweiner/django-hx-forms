@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Add Item to Cart - Django HX Forms Demo{% endblock %}
+{% block title %}{{ action }} Item - Django HX Forms Demo{% endblock %}
 
 {% block content %}
 <div class="max-w-2xl mx-auto">
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-            <h2 class="text-2xl font-bold text-gray-900">Add Item to Cart</h2>
+            <h2 class="text-2xl font-bold text-gray-900">{{ action }} Item{% if action == "Add" %} to Cart{% endif %}</h2>
             <p class="text-sm text-gray-600 mt-1">
                 Select a product type to see the form fields update dynamically
             </p>
@@ -14,6 +14,9 @@
         <div class="px-6 py-6">
             <form method="post">
                 {% csrf_token %}
+                {% if item %}
+                    <input type="hidden" name="item_id" value="{{ item.pk }}">
+                {% endif %}
 
                 <!-- Loading indicator -->
                 <div id="form-loading" class="htmx-indicator mb-4">
@@ -33,7 +36,7 @@
 
                 <div class="mt-6 flex space-x-3">
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition">
-                        Add to Cart
+                        {% if action == "Edit" %}Save Changes{% else %}Add to Cart{% endif %}
                     </button>
                     <a href="{% url 'shopping_cart:item-list' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-6 py-2 rounded-lg transition">
                         Cancel

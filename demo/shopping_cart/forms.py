@@ -41,7 +41,6 @@ class ProductForm(HtmxModelForm):
     def check_form_state(self):
         """
         Update form field state based on the selected product type.
-        This method is called during initialization and after HTMX triggers.
         """
         product_type = self.get_field_value("type")
 
