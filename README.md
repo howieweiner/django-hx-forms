@@ -1,11 +1,5 @@
 # django-hx-forms
 
-[![PyPI version](https://badge.fury.io/py/django-hx-forms.svg)](https://badge.fury.io/py/django-hx-forms)
-[![Python versions](https://img.shields.io/pypi/pyversions/django-hx-forms.svg)](https://pypi.org/project/django-hx-forms/)
-[![Django versions](https://img.shields.io/pypi/djversions/django-hx-fomrs.svg)](https://pypi.org/project/django-hx-forms/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Documentation Status](https://readthedocs.org/projects/django-hx-forms/badge/?version=latest)](https://django-hx-forms.readthedocs.io/en/latest/?badge=latest)
-
 Django forms mixin for managing form updates using htmx triggers
 
 django-hx-forms provides a mixin for Django forms to allow related form fields to be updated via HTMX events.
@@ -38,6 +32,3 @@ uv run pytest
 # Run type checking
 uv run mypy src
 ```
-## Documentation
-
-Please visit [https://django-hx-forms.readthedocs.io](https://django-hx-forms.readthedocs.io)
