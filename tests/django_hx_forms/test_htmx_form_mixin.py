@@ -727,6 +727,69 @@ class TestDisabledFieldHandling:
         assert form._was_field_reset("another_field") is False
 
 
+class TestMultiWidgetFieldHandling:
+    """Test that MultiWidget fields are correctly populated from HTMX data."""
+
+    def test_multi_widget_field_values_populated_from_sub_keys(self, mock_request):
+        """MultiWidget fields must use value_from_datadict, not htmx_data.get(field_name).
+
+        POST data for a MultiWidget encodes values as name_0, name_1, …  Falling
+        back to htmx_data.get('field_name') always returns None, causing the
+        field to render empty after an HTMX trigger.
+        """
+
+        class FormWithMultiWidget(HtmxFormMixin, forms.Form):
+            hx_post = "/test-url/"
+            hx_target = "#test-target"
+            date_range = forms.SplitDateTimeField(required=False)
+            name = CharField(required=False)
+
+            def __init__(self, *args, **kwargs):
+                self.request = kwargs.pop("request", None)
+                super().__init__(*args, **kwargs)
+
+            class Meta:
+                htmx_trigger_fields = ["name"]
+                htmx_field_resets = {}
+
+        htmx_data = {
+            "name": "trigger",
+            "date_range_0": "2024-01-15",
+            "date_range_1": "12:00:00",
+        }
+
+        form = FormWithMultiWidget(
+            request=mock_request, htmx_data=htmx_data, trigger_field="name"
+        )
+
+        assert form.fields["date_range"].initial == ["2024-01-15", "12:00:00"]
+
+    def test_multi_widget_field_empty_when_sub_keys_absent(self, mock_request):
+        """MultiWidget fields with no POST sub-keys should have [None, None] initial, not None."""
+
+        class FormWithMultiWidget(HtmxFormMixin, forms.Form):
+            hx_post = "/test-url/"
+            hx_target = "#test-target"
+            date_range = forms.SplitDateTimeField(required=False)
+            name = CharField(required=False)
+
+            def __init__(self, *args, **kwargs):
+                self.request = kwargs.pop("request", None)
+                super().__init__(*args, **kwargs)
+
+            class Meta:
+                htmx_trigger_fields = ["name"]
+                htmx_field_resets = {}
+
+        htmx_data = {"name": "trigger"}
+
+        form = FormWithMultiWidget(
+            request=mock_request, htmx_data=htmx_data, trigger_field="name"
+        )
+
+        assert form.fields["date_range"].initial == [None, None]
+
+
 class TestCheckFormState:
     """Test check_form_state method"""
 

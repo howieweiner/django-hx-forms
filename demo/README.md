@@ -40,7 +40,7 @@ Make sure you have Python 3.10+ and [uv](https://docs.astral.sh/uv/) installed.
 2. Create a virtual environment and install dependencies:
    ```bash
    uv venv
-   uv pip install -r requirements.txt
+   uv sync
    ```
 
 3. Run migrations:
