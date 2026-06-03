@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include '_head.html' %}
+<body class="bg-neutral-100">
+    {%include '_nav.html' %}
+
+    <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+        {% block content %} {% endblock %}
+    </div>
+</body>
+</html>

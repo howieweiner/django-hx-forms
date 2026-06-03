@@ -4,9 +4,10 @@ import logging
 from collections.abc import Mapping
 from typing import Any
 
-from django.forms import BooleanField, ModelForm
+from django.forms import BooleanField, ModelForm, MultiWidget
 from django.forms.fields import Field
 from django.forms.utils import ErrorList
+from django.utils.datastructures import MultiValueDict
 
 
 class HtmxFormMixin:
@@ -20,6 +21,10 @@ class HtmxFormMixin:
     - Set field values from HTMX data
     - Configure HTMX trigger attributes on specified fields
     - Provide utility functions to manage field state
+
+    The mixin accepts and pops the following kwargs before passing to the parent form:
+    - trigger_field: The name of the field that triggered the HTMX request
+    - htmx_data: The QueryDict containing HTMX form data
     """
 
     # Type hints for attributes provided by Django Form classes
@@ -172,6 +177,12 @@ class HtmxFormMixin:
             # Handle boolean fields
             if isinstance(field, BooleanField):
                 field.initial = self.htmx_data.get(field_name) == "on"
+            elif isinstance(field.widget, MultiWidget):
+                # MultiWidget fields (e.g. DateRangeWidget) store sub-values as
+                # name_0, name_1, … in POST data; value_from_datadict reassembles them.
+                field.initial = field.widget.value_from_datadict(
+                    self.htmx_data, MultiValueDict(), field_name
+                )
             else:
                 value = self.htmx_data.get(field_name)
                 field.initial = value

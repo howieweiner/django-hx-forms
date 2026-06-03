@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} Item - Django HX Forms Demo{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-900">{{ action }} Item{% if action == "Add" %} to Cart{% endif %}</h2>
+            <p class="text-sm text-gray-600 mt-1">
+                Select a product type to see the form fields update dynamically
+            </p>
+        </div>
+        <div class="px-6 py-6">
+            <form method="post">
+                {% csrf_token %}
+                {% if item %}
+                    <input type="hidden" name="item_id" value="{{ item.pk }}">
+                {% endif %}
+
+                <!-- Loading indicator -->
+                <div id="form-loading" class="htmx-indicator mb-4">
+                    <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg flex items-center">
+                        <svg class="animate-spin h-5 w-5 mr-3 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Updating form...
+                    </div>
+                </div>
+
+                <!-- Form container - HTMX target -->
+                <div id="item-form">
+                    {% include "shopping_cart/_item_form_fields.html" %}
+                </div>
+
+                <div class="flex items-center justify-end gap-4">
+                    <a href="{% url 'shopping_cart:item-list' %}" class="secondary-button">
+                        Cancel
+                    </a>
+                                        <button type="submit" class="primary-button">
+                        {% if action == "Edit" %}Save Changes{% else %}Add to Cart{% endif %}
+                    </button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Information card about reactive forms -->
+    <div class="bg-white shadow-md rounded-lg overflow-hidden mt-6">
+        <div class="px-6 py-6">
+            <h5 class="text-lg font-bold text-gray-900 mb-3">About This Demo</h5>
+            <p class="text-gray-700 mb-4">
+                This form demonstrates the reactive capabilities of django-hx-forms:
+            </p>
+            <ul class="space-y-2 text-gray-700">
+                <li class="flex items-start">
+                    <span class="text-blue-600 mr-2">•</span>
+                    <span><strong>T-Shirts</strong>: Show size field (S/M/L) and colour options (Black/White)</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-600 mr-2">•</span>
+                    <span><strong>Trousers</strong>: Show waist size field (28-42) and colour options (Black/Blue/Brown)</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-600 mr-2">•</span>
+                    <span>Fields are automatically enabled/disabled based on product type</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-600 mr-2">•</span>
+                    <span>Irrelevant fields are reset when switching product types</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-blue-600 mr-2">•</span>
+                    <span>All updates happen without page refresh using HTMX</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
