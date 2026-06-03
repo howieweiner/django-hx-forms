@@ -4,9 +4,10 @@ import logging
 from collections.abc import Mapping
 from typing import Any
 
-from django.forms import BooleanField, ModelForm
+from django.forms import BooleanField, ModelForm, MultiWidget
 from django.forms.fields import Field
 from django.forms.utils import ErrorList
+from django.utils.datastructures import MultiValueDict
 
 
 class HtmxFormMixin:
@@ -176,6 +177,12 @@ class HtmxFormMixin:
             # Handle boolean fields
             if isinstance(field, BooleanField):
                 field.initial = self.htmx_data.get(field_name) == "on"
+            elif isinstance(field.widget, MultiWidget):
+                # MultiWidget fields (e.g. DateRangeWidget) store sub-values as
+                # name_0, name_1, … in POST data; value_from_datadict reassembles them.
+                field.initial = field.widget.value_from_datadict(
+                    self.htmx_data, MultiValueDict(), field_name
+                )
             else:
                 value = self.htmx_data.get(field_name)
                 field.initial = value
