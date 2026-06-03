@@ -1,60 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Django HX Forms Demo{% endblock %}</title>
+{% include '_head.html' %}
+<body class="bg-neutral-100">
+    {%include '_nav.html' %}
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- HTMX -->
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-
-    <style>
-        .htmx-indicator {
-            display: none;
-        }
-        .htmx-request .htmx-indicator {
-            display: inline;
-        }
-        .htmx-request.htmx-indicator {
-            display: inline;
-        }
-    </style>
-</head>
-<body class="bg-gray-50">
-    <nav class="bg-blue-600 text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="{% url 'shopping_cart:item-list' %}" class="text-xl font-bold">
-                        Django HX Forms Demo
-                    </a>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="{% url 'shopping_cart:item-list' %}" class="hover:text-blue-200 transition">
-                        Cart
-                    </a>
-                    <a href="{% url 'shopping_cart:item-add' %}" class="hover:text-blue-200 transition">
-                        Add Item
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="mb-4 p-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% elif message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        {% block content %}
-        {% endblock %}
+    <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+        {% block content %} {% endblock %}
     </div>
 </body>
 </html>

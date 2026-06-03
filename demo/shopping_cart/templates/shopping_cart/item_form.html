@@ -29,18 +29,19 @@
                     </div>
                 </div>
 
-                <!-- Form container that HTMX will update -->
+                <!-- Form container - HTMX target -->
                 <div id="item-form">
-                    {% include "shopping_cart/partials/item_form_fields.html" %}
+                    {% include "shopping_cart/_item_form_fields.html" %}
                 </div>
 
-                <div class="mt-6 flex space-x-3">
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition">
-                        {% if action == "Edit" %}Save Changes{% else %}Add to Cart{% endif %}
-                    </button>
-                    <a href="{% url 'shopping_cart:item-list' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-6 py-2 rounded-lg transition">
+                <div class="flex items-center justify-end gap-4">
+                    <a href="{% url 'shopping_cart:item-list' %}" class="secondary-button">
                         Cancel
                     </a>
+                                        <button type="submit" class="primary-button">
+                        {% if action == "Edit" %}Save Changes{% else %}Add to Cart{% endif %}
+                    </button>
+
                 </div>
             </form>
         </div>

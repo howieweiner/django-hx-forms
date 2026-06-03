@@ -4,8 +4,8 @@
 
 {% block content %}
 <div class="mb-6 flex justify-between items-center">
-    <h1 class="text-3xl font-bold text-gray-900">Shopping Cart</h1>
-    <a href="{% url 'shopping_cart:item-add' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition">
+    <h2 class="text-3xl font-bold text-gray-900">Shopping Cart</h2>
+    <a href="{% url 'shopping_cart:item-add' %}" class="primary-button">
         Add Item to Cart
     </a>
 </div>
@@ -15,16 +15,16 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Colour</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th class="thead">Item</th>
+                    <th class="thead">Type</th>
+                    <th class="thead">Details</th>
+                    <th class="thead">Colour</th>
+                    <th class="thead">Actions</th>
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 {% for item in items %}
-                    <tr class="hover:bg-gray-50">
+                    <tr>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ item }}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             {% if item.type == 'tshirt' %}
@@ -59,14 +59,9 @@
         </table>
     </div>
 {% else %}
-    <div class="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-lg">
-        <h4 class="text-xl font-bold text-blue-900 mb-2">Your cart is empty!</h4>
+    <div class="bg-blue-50 border border-blue-400 p-6 rounded-lg">
+        <h4 class="text-xl font-bold text-blue-900 mb-2">Your cart is empty</h4>
         <p class="text-blue-800 mb-3">Start by adding an item to your cart using the button above.</p>
-        <hr class="border-blue-200 my-4">
-        <p class="text-blue-700">
-            This demo showcases reactive forms using django-hx-forms.
-            The form fields will dynamically update based on the product type you select.
-        </p>
     </div>
 {% endif %}
 {% endblock %}

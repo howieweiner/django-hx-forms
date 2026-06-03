@@ -1,0 +1,31 @@
+<div>
+    <label for="{{ field.id_for_label }}" class="block text-sm/6 font-medium text-gray-900">
+        {{ field.label|safe }}{% if field.field.required %} <span class="text-red-600">*</span>{% endif %}
+    </label>
+    <div class="mb-4">
+        <select id="{{ field.id_for_label }}" name="{{ field.html_name }}"
+                {% if field.field.widget.attrs.disabled %}disabled{% endif %}
+                {% if field.field.widget.attrs.autofocus %}autofocus{% endif %}
+                {% if field.field.required %}required{% endif %}
+                class="{% if field.errors %}border border-red-500 {% endif %}bg-white focus border border-gray-400 rounded-lg py-2 px-4 block w-full leading-normal text-gray-700 cursor-pointer{% if field.field.widget.attrs.disabled %} opacity-75 cursor-not-allowed{% endif %}">
+
+            {% for value, label in field.field.choices %}
+            <option value="{{ value }}" {% if field.value|stringformat:
+            "s" == value|stringformat:"s" %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <svg viewBox="0 0 16 16" fill="currentColor" data-slot="icon" aria-hidden="true"
+             class="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end text-gray-500 sm:size-4 dark:text-gray-400">
+            <path d="M4.22 6.22a.75.75 0 0 1 1.06 0L8 8.94l2.72-2.72a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 7.28a.75.75 0 0 1 0-1.06Z"
+                  clip-rule="evenodd" fill-rule="evenodd"/>
+        </svg>
+    </div>
+    {% if field.errors %}
+    <div class="mt-1 text-sm text-red-600">
+        {{ field.errors }}
+    </div>
+    {% endif %}
+    {% if field.help_text %}
+    <p class="mt-1 text-sm text-gray-500">{{ field.help_text }}</p>
+    {% endif %}
+</div>

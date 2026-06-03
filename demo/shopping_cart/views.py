@@ -63,7 +63,7 @@ class ItemFormUpdateView(HtmxFormUpdateViewMixin):
     """
 
     form_class = ProductForm
-    template_name = "shopping_cart/partials/item_form_fields.html"
+    template_name = "shopping_cart/_item_form_fields.html"
 
     def get_form_instance(self):
         """Get the product instance if editing an existing item."""

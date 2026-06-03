@@ -54,7 +54,7 @@ class Product(models.Model):
         blank=True,
         help_text="For Trousers only",
     )
-    colour = models.CharField(max_length=20, blank=True)
+    colour = models.CharField(max_length=20)
 
     def __str__(self):
         if self.type == self.TYPE_TSHIRT:
