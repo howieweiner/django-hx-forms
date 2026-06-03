@@ -1,0 +1,31 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Django HX Forms Demo{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <style>
+        .htmx-indicator {
+            display: none;
+        }
+        .htmx-request .htmx-indicator {
+            display: inline;
+        }
+        .htmx-request.htmx-indicator {
+            display: inline;
+        }
+    </style>
+    <style type="text/tailwindcss">
+        .primary-button {
+            @apply bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded-lg;
+        }
+        .secondary-button {
+            @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-6 py-2 rounded-lg
+        }
+        .thead {
+            @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+        }
+    </style>
+</head>

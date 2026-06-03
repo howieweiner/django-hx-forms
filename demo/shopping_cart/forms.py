@@ -1,4 +1,3 @@
-from django import forms
 from django.urls import reverse_lazy
 
 from django_hx_forms.forms import HtmxModelForm
@@ -7,9 +6,6 @@ from .models import Product
 
 
 class ProductForm(HtmxModelForm):
-    # Override colour to be a ChoiceField since the model field has no choices
-    # This allows dynamic choice updates via self.fields["colour"].choices
-    colour = forms.ChoiceField(choices=[], required=False)
     """
     Form for adding cart items with reactive HTMX behavior.
 
@@ -53,8 +49,6 @@ class ProductForm(HtmxModelForm):
 
             # Update colour choices for t-shirts
             self.fields["colour"].choices = Product.TSHIRT_COLOUR_CHOICES
-            self.enable_field("colour")
-            self.set_field_required("colour", True)
 
         elif product_type == Product.TYPE_TROUSERS:
             # Trousers selected: disable size, enable waist_size
@@ -65,17 +59,12 @@ class ProductForm(HtmxModelForm):
 
             # Update colour choices for trousers
             self.fields["colour"].choices = Product.TROUSERS_COLOUR_CHOICES
-            self.enable_field("colour")
-            self.set_field_required("colour", True)
-
         else:
             # No type selected: disable all type-specific fields
             self.disable_field("size")
             self.set_field_required("size", False)
             self.disable_field("waist_size")
             self.set_field_required("waist_size", False)
-            self.disable_field("colour")
-            self.set_field_required("colour", False)
 
             # Set a placeholder colour choice
             self.fields["colour"].choices = [("", "Select product type first...")]
@@ -90,27 +79,4 @@ class ProductForm(HtmxModelForm):
         # When type changes, reset the dependent fields
         htmx_field_resets = {
             "type": ["size", "waist_size", "colour"],
-        }
-
-        widgets = {
-            "type": forms.Select(
-                attrs={
-                    "class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                }
-            ),
-            "size": forms.Select(
-                attrs={
-                    "class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                }
-            ),
-            "waist_size": forms.Select(
-                attrs={
-                    "class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                }
-            ),
-            "colour": forms.Select(
-                attrs={
-                    "class": "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                }
-            ),
         }
