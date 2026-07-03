@@ -155,7 +155,7 @@ markers = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "1.0.1"
+version = "1.0.0"
 tag_format = "v$version"
 version_files = [
     "src/django_hx_forms/__init__.py:__version__",
