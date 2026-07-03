@@ -51,17 +51,11 @@ test = [
     "pytest>=7.0",
     "pytest-django>=4.5",
 ]
-docs = [
-    "sphinx>=7.0",
-    "sphinx-rtd-theme>=2.0",
-    "sphinx-autodoc-typehints>=1.24",
-]
 
 [project.urls]
 Homepage = "https://github.com/howieweiner/django-hx-forms"
 Repository = "https://github.com/howieweiner/django-hx-forms.git"
 Issues = "https://github.com/howieweiner/django-hx-forms/issues"
-Documentation = "https://django-hx-forms.readthedocs.io/"
 
 [tool.hatch.version]
 path = "src/django_hx_forms/__init__.py"

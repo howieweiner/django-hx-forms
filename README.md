@@ -16,8 +16,24 @@ by this trigger.
 
 ## Installation
 
+**With uv:**
+
+```bash
+uv add django-hx-forms
+```
+
+**With pip:**
+
 ```bash
 pip install django-hx-forms
+```
+
+Or add it to your `pyproject.toml` dependencies directly:
+
+```toml
+dependencies = [
+    "django-hx-forms",
+]
 ```
 
 You also need [HTMX](https://htmx.org/) loaded in your templates — see the
