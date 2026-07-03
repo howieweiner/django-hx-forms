@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
     steps:
     - uses: actions/checkout@v7
       with:
@@ -61,3 +62,10 @@ jobs:
           --title "v${{ steps.version.outputs.version }}" \
           --notes-from-tag \
           --verify-tag
+
+    # A release created with GITHUB_TOKEN does not trigger the Publish
+    # workflow's `release: published` event, so dispatch it explicitly.
+    - name: Trigger Publish workflow
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh workflow run publish.yml --ref main
